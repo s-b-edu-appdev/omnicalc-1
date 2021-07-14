@@ -21,10 +21,11 @@ class ApplicationController < ActionController::Base
     def calculate_payment
         @apr = params.fetch("apr").to_f
         @nyears = params.fetch("nyears").to_f
+        @npayments = @nyears * 12
         @principal = params.fetch("principal").to_f
-        @monthrate = (1 + @apr/100) ** (1/12) - 1
-        #@payment = (@principal * @monthrate) / (1 - (1+@monthrate) ** (-@nyears * 12))
-        @payment = @principal * (@monthrate*(1+@monthrate) ** (@nyears * 12) / ( (1+@monthrate) ** (@nyears * 12)-1))
+        @monthrate = @apr/100/12
+
+        @payment = @principal * @monthrate * ((1 + @monthrate) ** @npayments) / ((1 + @monthrate) ** @npayments - 1)
         render({ :template => "calculation_templates/payment_results.html.erb"})
     end
     def blank_random_form
